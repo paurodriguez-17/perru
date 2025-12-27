@@ -177,7 +177,7 @@ const Agenda = () => {
 
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-black text-gray-700 text-xs bg-gray-100 px-2 py-0.5 rounded-lg">
-                      {turno.fecha_turno.substring(11, 16)} hs
+                        {turno.fecha_turno.substring(11, 16)} hs
                       </span>
                       <button
                         onClick={() => {
@@ -196,18 +196,43 @@ const Agenda = () => {
                     <p className="text-xs text-perru-purple truncate font-bold">✂ {turno.servicio || 'Varios'}</p>
                     <p className="text-[10px] text-gray-400 truncate uppercase tracking-wide">{turno.nombre_dueno}</p>
 
-                    {/* Botones Acciones (Siempre visibles en móvil, hover en desktop) */}
+                    {/* Botones de Acción (Lógica Híbrida) */}
                     {turno.estado === 'Pendiente' && (
-                      <div className="flex gap-2 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity justify-end">
-                        <button onClick={() => cancelarTurno(turno.id)} className="text-xs text-red-400 font-bold border border-red-200 px-2 py-1 rounded-lg hover:bg-red-50">Cancelar</button>
-                        <button onClick={() => iniciarCobro(turno)} className="text-xs bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow-sm hover:bg-green-600">Cobrar</button>
-                      </div>
-                    )}
+                      <>
+                        {/* 📱 MÓVIL: Botones con Texto (Se ven siempre, abajo) */}
+                        <div className="flex gap-2 mt-3 md:hidden justify-end">
+                          <button
+                            onClick={() => cancelarTurno(turno.id)}
+                            className="text-xs text-red-400 font-bold border border-red-200 px-2 py-1 rounded-lg hover:bg-red-50"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            onClick={() => iniciarCobro(turno)}
+                            className="text-xs bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow-sm hover:bg-green-600"
+                          >
+                            Cobrar
+                          </button>
+                        </div>
 
-                    {turno.estado !== 'Pendiente' && (
-                      <span className={`text-[10px] px-2 py-0.5 rounded-lg mt-2 inline-block font-bold uppercase tracking-wider ${turno.estado === 'Finalizado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {turno.estado}
-                      </span>
+                        {/* 💻 PC: Botones de Icono (Solo al pasar el mouse, flotantes) */}
+                        <div className="hidden md:flex absolute bottom-2 right-2 gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 p-1 rounded-xl shadow-md z-20 border border-gray-100">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); iniciarCobro(turno); }}
+                            className="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center hover:bg-green-500 hover:text-white transition-all font-bold"
+                            title="Cobrar y Finalizar"
+                          >
+                            ✔
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); cancelarTurno(turno.id); }}
+                            className="w-8 h-8 rounded-lg bg-red-100 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all font-bold"
+                            title="Cancelar Turno"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </>
                     )}
                   </div>
                 ))}
