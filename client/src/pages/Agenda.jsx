@@ -9,7 +9,29 @@ const Agenda = () => {
   const [fechaInicioSemana, setFechaInicioSemana] = useState(new Date());
   const [modalCobroAbierto, setModalCobroAbierto] = useState(false);
   const [turnoParaCobrar, setTurnoParaCobrar] = useState(null);
+  const [turnoAEditar, setTurnoAEditar] = useState(null);
+  const abrirModalCrear = () => {
+    setTurnoAEditar(null);
+    setModalAbierto(true);
+  };
+  const abrirModalEditar = (turno) => {
+    setTurnoAEditar(turno);
+    setModalAbierto(true);
+  };
+  const eliminarTurnoPermanente = async (id) => {
+    if (!window.confirm('⚠️ ¿Estás seguro de ELIMINAR este turno definitivamente?')) return;
 
+    try {
+      const res = await fetch(`/api/turnos/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        cargarTurnos();
+      } else {
+        alert('Error al eliminar');
+      }
+    } catch (error) { console.error(error); }
+  };
   const cargarTurnos = () => {
     fetch('/api/turnos')
       .then(res => res.json())
@@ -122,15 +144,19 @@ const Agenda = () => {
 
         {/* Botón Nuevo Turno (Flotante en móvil o fijo en Desktop) */}
         <button
-          onClick={() => setModalAbierto(true)}
+          onClick={abrirModalCrear}
           className="bg-perru-hotpink hover:bg-pink-500 text-white px-6 py-3 rounded-2xl shadow-lg shadow-perru-pink/40 flex items-center gap-2 font-bold transition-transform active:scale-95 w-full md:w-auto justify-center"
         >
           <span>+</span> Nuevo Turno
         </button>
       </div>
 
-      <ModalTurno isOpen={modalAbierto} onClose={() => setModalAbierto(false)} alGuardar={cargarTurnos} />
-      <ModalCobro
+      <ModalTurno
+        isOpen={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        alGuardar={cargarTurnos}
+        turnoEditar={turnoAEditar}
+      /><ModalCobro
         isOpen={modalCobroAbierto}
         onClose={() => setModalCobroAbierto(false)}
         turno={turnoParaCobrar}
@@ -199,39 +225,70 @@ const Agenda = () => {
                     {/* Botones de Acción (Lógica Híbrida) */}
                     {turno.estado === 'Pendiente' && (
                       <>
-                        {/* 📱 MÓVIL: Botones con Texto (Se ven siempre, abajo) */}
-                        <div className="flex gap-2 mt-3 md:hidden justify-end">
+                        {/* 🔽 REEMPLAZAR TU BLOQUE DE BOTONES POR ESTE 🔽 */}
+
+                        {/* MÓVIL: Botones siempre visibles abajo */}
+                        <div className="flex gap-2 mt-3 md:hidden justify-end flex-wrap">
+                          {/* Editar */}
                           <button
-                            onClick={() => cancelarTurno(turno.id)}
-                            className="text-xs text-red-400 font-bold border border-red-200 px-2 py-1 rounded-lg hover:bg-red-50"
+                            onClick={() => abrirModalEditar(turno)}
+                            className="text-xs bg-blue-50 text-blue-600 font-bold px-2 py-1 rounded-lg border border-blue-100"
                           >
-                            Cancelar
+                            ✏️ Editar
                           </button>
+
+                          {/* Eliminar */}
                           <button
-                            onClick={() => iniciarCobro(turno)}
-                            className="text-xs bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow-sm hover:bg-green-600"
+                            onClick={() => eliminarTurnoPermanente(turno.id)}
+                            className="text-xs bg-red-50 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-100"
                           >
-                            Cobrar
+                            🗑️ Borrar
                           </button>
+
+                          {/* Cobrar (solo si pendiente) */}
+                          {turno.estado === 'Pendiente' && (
+                            <button
+                              onClick={() => iniciarCobro(turno)}
+                              className="text-xs bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow-sm"
+                            >
+                              Cobrar
+                            </button>
+                          )}
                         </div>
 
-                        {/* 💻 PC: Botones de Icono (Solo al pasar el mouse, flotantes) */}
+                        {/* PC: Botones flotantes al pasar el mouse */}
                         <div className="hidden md:flex absolute bottom-2 right-2 gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 p-1 rounded-xl shadow-md z-20 border border-gray-100">
+
+                          {/* Editar */}
                           <button
-                            onClick={(e) => { e.stopPropagation(); iniciarCobro(turno); }}
-                            className="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center hover:bg-green-500 hover:text-white transition-all font-bold"
-                            title="Cobrar y Finalizar"
+                            onClick={(e) => { e.stopPropagation(); abrirModalEditar(turno); }}
+                            className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all font-bold"
+                            title="Editar"
                           >
-                            ✔
+                            ✏️
                           </button>
+
+                          {/* Eliminar */}
                           <button
-                            onClick={(e) => { e.stopPropagation(); cancelarTurno(turno.id); }}
-                            className="w-8 h-8 rounded-lg bg-red-100 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all font-bold"
-                            title="Cancelar Turno"
+                            onClick={(e) => { e.stopPropagation(); eliminarTurnoPermanente(turno.id); }}
+                            className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-600 hover:text-white transition-all font-bold"
+                            title="Eliminar"
                           >
-                            ✕
+                            🗑️
                           </button>
+
+                          {/* Cobrar (Solo si pendiente) */}
+                          {turno.estado === 'Pendiente' && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); iniciarCobro(turno); }}
+                              className="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center hover:bg-green-500 hover:text-white transition-all font-bold"
+                              title="Cobrar"
+                            >
+                              ✔
+                            </button>
+                          )}
                         </div>
+                        {/* 🔼 FIN DEL REEMPLAZO 🔼 */}
                       </>
                     )}
                   </div>
