@@ -1,9 +1,16 @@
 import { useState } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    if (window.confirm('¿Cerrar sesión?')) {
+      localStorage.removeItem('perru_auth'); // Borramos la llave
+      navigate('/login'); // Mandamos al login
+    }
+  };
 
   const menuItems = [
     { path: '/', label: 'Inicio', icon: '🏠' },
@@ -70,7 +77,15 @@ const Layout = () => {
             );
           })}
         </nav>
-
+        <div className="px-4 mt-2">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all font-bold text-sm"
+          >
+            <span className="text-xl">🚪</span>
+            Salir
+          </button>
+        </div>
         {/* Footer del menú */}
         <div className="p-4 text-center">
           <p className="text-xs text-perru-purple font-bold">🐶 Spa & Shop</p>

@@ -47,10 +47,10 @@ const Stock = () => {
             {/* Filtros Estilo Perru */}
             <div className="flex flex-col md:flex-row gap-4 mb-6">
                 <div className="flex-1 relative">
-                    <span className="absolute left-4 top-3.5 text-gray-400">🔍</span>
+                    <span className="absolute left-4 top-3.5 text-gray-400"></span>
                     <input 
                         type="text" 
-                        placeholder="Buscar por nombre o código..." 
+                        placeholder="🔍Buscar por nombre o código..." 
                         className="input-perru pl-10"
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
