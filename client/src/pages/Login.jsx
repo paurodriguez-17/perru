@@ -24,7 +24,6 @@ const Login = () => {
       <div className="bg-white p-8 md:p-12 rounded-[3rem] shadow-2xl border-4 border-white w-full max-w-md animate-scaleUp">
 
         <div className="text-center mb-10">
-          {/* Logo Principal en Círculo Grande */}
           <div className="w-40 h-40 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-perru-pink/30 p-2 border-4 border-perru-bg">
             <img
               src="/logo.png"
