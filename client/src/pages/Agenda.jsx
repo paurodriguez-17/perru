@@ -65,11 +65,19 @@ const Agenda = () => {
     diasSemana.push(fechaDia);
   }
 
+  // ... dentro de Agenda.jsx
+
   const obtenerTurnosDelDia = (fecha) => {
     return turnos.filter(t => {
-      // FIX ZONA HORARIA: Usamos split para asegurar fecha local si viene YYYY-MM-DD
-      const fechaTurnoStr = t.fecha_turno.split('T')[0];
-      const fechaDiaStr = fecha.toISOString().split('T')[0];
+      // 1. Tomamos los primeros 10 caracteres (YYYY-MM-DD) sin importar si hay T o espacio
+      const fechaTurnoStr = t.fecha_turno.substring(0, 10);
+
+      // 2. Convertimos la fecha de la columna a YYYY-MM-DD local (para evitar líos de zona horaria)
+      const año = fecha.getFullYear();
+      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+      const dia = String(fecha.getDate()).padStart(2, '0');
+      const fechaDiaStr = `${año}-${mes}-${dia}`;
+
       return fechaTurnoStr === fechaDiaStr;
     });
   };
