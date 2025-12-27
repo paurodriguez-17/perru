@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #FFFDFE;
+    color: #5D5D5D;
+    font-family: 'Fredoka', sans-serif;
+}
+
+/* --- CLASES REUTILIZABLES --- */
+
+/* 1. Inputs de Texto */
+.input-perru {
+    @apply w-full border border-gray-200 bg-gray-50/50 rounded-2xl px-4 py-3 text-gray-700 outline-none transition-all duration-300;
+}
+
+.input-perru:focus {
+    @apply bg-white border-perru-hotpink ring-4 ring-perru-pink/20;
+}
+
+/* 2. Selects (CORREGIDO) */
+.select-perru {
+    @apply w-full border border-gray-200 bg-gray-50/50 rounded-2xl px-4 py-3 text-gray-700 outline-none transition-all duration-300 appearance-none cursor-pointer font-medium;
+
+    /* IMAGEN DE FLECHA */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23F977B5' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+
+    /* POSICIÓN Y TAMAÑO (CRÍTICO: NO REPEAT) */
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.2em 1.2em;
+    padding-right: 2.5rem;
+}
+
+.select-perru:focus {
+    @apply bg-white border-perru-hotpink ring-4 ring-perru-pink/20;
+}
+
+/* Estilo para las opciones desplegables (limitado por navegador, pero mejora la limpieza) */
+.select-perru option {
+    background-color: white;
+    color: #5D5D5D;
+    font-family: 'Fredoka', sans-serif;
+    padding: 12px;
+}
+
+/* 3. Etiquetas */
+.label-perru {
+    @apply block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1;
+}
+
+/* 4. Modales */
+.modal-overlay {
+    @apply fixed inset-0 bg-perru-purple/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fadeIn;
+}
+
+.modal-content {
+    @apply bg-white rounded-[2rem] shadow-2xl border border-white/60 w-full overflow-hidden flex flex-col animate-scaleUp;
+}
+
+/* Scrollbar Rosa */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D5B7DD;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #FFA2CE;
+}
