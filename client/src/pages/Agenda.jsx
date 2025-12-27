@@ -67,10 +67,10 @@ const Agenda = () => {
 
   const obtenerTurnosDelDia = (fecha) => {
     return turnos.filter(t => {
-      const fechaTurno = new Date(t.fecha_turno);
-      return fechaTurno.getDate() === fecha.getDate() &&
-        fechaTurno.getMonth() === fecha.getMonth() &&
-        fechaTurno.getFullYear() === fecha.getFullYear();
+      // FIX ZONA HORARIA: Usamos split para asegurar fecha local si viene YYYY-MM-DD
+      const fechaTurnoStr = t.fecha_turno.split('T')[0];
+      const fechaDiaStr = fecha.toISOString().split('T')[0];
+      return fechaTurnoStr === fechaDiaStr;
     });
   };
 
@@ -91,7 +91,7 @@ const Agenda = () => {
     } catch (error) { console.error(error); }
   };
 
-  const tituloMes = lunesActual.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }); // Quitamos upperCase forzado para usar CSS capitalize
+  const tituloMes = lunesActual.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 
   // Colores según estado para el borde de la tarjeta (ADAPTADO A PALETA PERRU)
   const getBordeEstado = (estado) => {
@@ -101,22 +101,27 @@ const Agenda = () => {
   };
 
   return (
-    <div className="h-full flex flex-col p-4 md:p-8 min-h-screen">
+    <div className="flex flex-col h-full min-h-screen pb-20 md:pb-0 p-4 md:p-8">
 
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div className="flex items-center gap-4 bg-white p-2 rounded-2xl shadow-sm border border-perru-pink/20">
-          <h2 className="text-2xl font-black text-gray-700 capitalize px-2">📅 {tituloMes}</h2>
-          <div className="flex bg-perru-bg rounded-xl border border-perru-pink/20 overflow-hidden">
-            <button onClick={() => cambiarSemana(-7)} className="px-4 py-2 hover:bg-perru-pink/20 text-perru-purple font-bold">‹</button>
-            <button onClick={() => setFechaInicioSemana(new Date())} className="px-4 py-2 hover:bg-perru-pink/20 text-xs font-black text-perru-hotpink border-l border-r border-perru-pink/20 uppercase tracking-wide">Hoy</button>
-            <button onClick={() => cambiarSemana(7)} className="px-4 py-2 hover:bg-perru-pink/20 text-perru-purple font-bold">›</button>
+      {/* HEADER RESPONSIVE */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+
+        {/* Navegación Fechas */}
+        <div className="flex items-center gap-2 bg-white p-2 rounded-2xl shadow-sm border border-perru-pink/20 w-full md:w-auto justify-between md:justify-start">
+          <button onClick={() => cambiarSemana(-7)} className="w-10 h-10 flex items-center justify-center hover:bg-perru-pink/10 rounded-full text-perru-purple font-bold text-xl">‹</button>
+
+          <div className="text-center">
+            <h2 className="text-lg md:text-2xl font-black text-gray-700 capitalize">{tituloMes}</h2>
+            <button onClick={() => setFechaInicioSemana(new Date())} className="text-xs font-bold text-perru-hotpink uppercase tracking-wide">Volver a Hoy</button>
           </div>
+
+          <button onClick={() => cambiarSemana(7)} className="w-10 h-10 flex items-center justify-center hover:bg-perru-pink/10 rounded-full text-perru-purple font-bold text-xl">›</button>
         </div>
 
+        {/* Botón Nuevo Turno (Flotante en móvil o fijo en Desktop) */}
         <button
           onClick={() => setModalAbierto(true)}
-          className="bg-perru-hotpink hover:bg-pink-500 text-white px-6 py-3 rounded-2xl shadow-lg shadow-perru-pink/40 flex items-center gap-2 font-bold transition-transform active:scale-95"
+          className="bg-perru-hotpink hover:bg-pink-500 text-white px-6 py-3 rounded-2xl shadow-lg shadow-perru-pink/40 flex items-center gap-2 font-bold transition-transform active:scale-95 w-full md:w-auto justify-center"
         >
           <span>+</span> Nuevo Turno
         </button>
@@ -130,86 +135,75 @@ const Agenda = () => {
         alConfirmar={cargarTurnos}
       />
 
-      {/* GRILLA DE 7 COLUMNAS (Estilo Perruquería) */}
-      <div className="flex-1 grid grid-cols-7 gap-4 overflow-x-auto pb-4 min-w-[1000px]">
+      {/* GRILLA RESPONSIVE (La magia ocurre aquí) */}
+      {/* Mobile: grid-cols-1 (Lista) | Desktop: grid-cols-7 (Calendario) */}
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 md:gap-2">
         {diasSemana.map((dia, index) => {
           const esHoy = new Date().toDateString() === dia.toDateString();
           const turnosDia = obtenerTurnosDelDia(dia);
 
           return (
-            <div key={index} className="flex flex-col h-full min-w-[140px]">
+            <div key={index} className="flex flex-col min-h-[150px] md:min-h-[400px]">
 
               {/* CABECERA DEL DÍA */}
-              <div className={`text-center p-3 rounded-t-3xl mb-2 transition-colors ${esHoy
-                  ? 'bg-perru-hotpink text-white shadow-md shadow-perru-pink/30'
-                  : 'bg-white text-gray-400 border border-transparent'
+              <div className={`p-3 rounded-t-2xl md:rounded-t-3xl flex md:block justify-between items-center ${esHoy ? 'bg-perru-hotpink text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100'
                 }`}>
-                <p className={`text-[10px] font-black uppercase tracking-widest ${esHoy ? 'text-white/80' : 'text-gray-400'}`}>
-                  {dia.toLocaleDateString('es-ES', { weekday: 'short' })}
-                </p>
-                <p className={`text-2xl font-black ${esHoy ? 'text-white' : 'text-gray-600'}`}>
-                  {dia.getDate()}
-                </p>
+
+                {/* En móvil: "LUNES 27" en una línea */}
+                <div className="flex items-baseline gap-2 md:block md:text-center">
+                  <span className={`text-xs md:text-[10px] font-black uppercase tracking-widest ${esHoy ? 'text-white/80' : 'text-gray-400'}`}>
+                    {dia.toLocaleDateString('es-ES', { weekday: 'long' })}
+                  </span>
+                  <span className={`text-xl md:text-2xl font-black ${esHoy ? 'text-white' : 'text-gray-600'}`}>
+                    {dia.getDate()}
+                  </span>
+                </div>
+
+                {/* Contador de turnos (solo visible en móvil para ahorrar espacio) */}
+                <span className="md:hidden text-xs font-bold bg-white/20 px-2 py-1 rounded-lg">
+                  {turnosDia.length} citas
+                </span>
               </div>
 
-              {/* COLUMNA DE TURNOS */}
-              <div className="bg-white/60 rounded-b-3xl flex-1 p-2 space-y-3 min-h-[400px] border border-perru-pink/10">
+              {/* LISTA DE TURNOS */}
+              <div className="bg-gray-50 md:bg-white/60 rounded-b-2xl md:rounded-b-3xl flex-1 p-2 space-y-3 border border-t-0 border-perru-pink/10">
+                {turnosDia.length === 0 && (
+                  <div className="text-center py-4 text-gray-300 text-xs font-medium italic">Sin turnos</div>
+                )}
                 {turnosDia.map(turno => (
-                  <div key={turno.id} className={`p-3 rounded-2xl transition-all group relative overflow-hidden ${getBordeEstado(turno.estado)}`}>
+                  <div key={turno.id} className={`p-3 rounded-2xl relative group ${getBordeEstado(turno.estado)}`}>
 
-                    <div className="flex justify-between items-start mb-1 relative z-10">
-                      <span className="font-black text-gray-700 text-xs bg-white/50 px-2 py-0.5 rounded-lg">
-                        {new Date(turno.fecha_turno).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-black text-gray-700 text-xs bg-gray-100 px-2 py-0.5 rounded-lg">
+                        {turno.fecha_turno.split('T')[1].substring(0, 5)} hs
                       </span>
-
-                      <div className="flex gap-1">
-                        {/* BOTÓN WHATSAPP */}
-                        <button
-                          onClick={() => {
-                            const fechaStr = new Date(turno.fecha_turno).toLocaleDateString();
-                            const horaStr = new Date(turno.fecha_turno).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                            const msg = `¡Hola ${turno.nombre_dueno}! 🐾 Te recordamos el turno de ${turno.nombre_mascota} para el ${fechaStr} a las ${horaStr}. ¡Los esperamos!`;
-                            abrirWhatsApp(turno.telefono_dueno, msg);
-                          }}
-                          title="Enviar Recordatorio"
-                          className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center hover:bg-green-500 hover:text-white transition-colors"
-                        >
-                          📱
-                        </button>
-                      </div>
-
-                      {/* BOTONES DE ACCIÓN (Solo si está pendiente) */}
-                      {turno.estado === 'Pendiente' && (
-                        <div className="absolute top-8 right-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 p-1 rounded-lg shadow-sm">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); iniciarCobro(turno); }}
-                            title="Cobrar y Finalizar"
-                            className="text-gray-400 hover:text-green-500 font-bold p-1"
-                          >
-                            ✔
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); cancelarTurno(turno.id); }}
-                            title="Cancelar"
-                            className="text-gray-400 hover:text-red-500 font-bold p-1"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      )}
+                      <button
+                        onClick={() => {
+                          const fechaStr = new Date(turno.fecha_turno).toLocaleDateString();
+                          const horaStr = new Date(turno.fecha_turno).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                          const msg = `¡Hola ${turno.nombre_dueno}! 🐾 Te recordamos el turno de ${turno.nombre_mascota} para el ${fechaStr} a las ${horaStr}. ¡Los esperamos!`;
+                          abrirWhatsApp(turno.telefono_dueno, msg);
+                        }}
+                        className="w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center"
+                      >📱</button>
                     </div>
 
-                    <h4 className={`font-black text-sm leading-tight mt-2 ${turno.estado !== 'Pendiente' ? 'text-gray-400 line-through decoration-2' : 'text-gray-800'}`}>
+                    <h4 className={`font-black text-sm mt-1 ${turno.estado !== 'Pendiente' ? 'text-gray-400 line-through decoration-2' : 'text-gray-800'}`}>
                       {turno.nombre_mascota}
                     </h4>
-                    <p className="text-xs font-bold text-perru-hotpink mb-0.5">
-                      ✂ {turno.servicio || 'Varios'}
-                    </p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide truncate">{turno.nombre_dueno}</p>
+                    <p className="text-xs text-perru-purple truncate font-bold">✂ {turno.servicio || 'Varios'}</p>
+                    <p className="text-[10px] text-gray-400 truncate uppercase tracking-wide">{turno.nombre_dueno}</p>
+
+                    {/* Botones Acciones (Siempre visibles en móvil, hover en desktop) */}
+                    {turno.estado === 'Pendiente' && (
+                      <div className="flex gap-2 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity justify-end">
+                        <button onClick={() => cancelarTurno(turno.id)} className="text-xs text-red-400 font-bold border border-red-200 px-2 py-1 rounded-lg hover:bg-red-50">Cancelar</button>
+                        <button onClick={() => iniciarCobro(turno)} className="text-xs bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow-sm hover:bg-green-600">Cobrar</button>
+                      </div>
+                    )}
 
                     {turno.estado !== 'Pendiente' && (
-                      <span className={`text-[10px] px-2 py-0.5 rounded-lg mt-2 inline-block font-bold uppercase tracking-wider ${turno.estado === 'Finalizado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-lg mt-2 inline-block font-bold uppercase tracking-wider ${turno.estado === 'Finalizado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         {turno.estado}
                       </span>
                     )}
