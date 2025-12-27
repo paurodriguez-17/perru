@@ -64,15 +64,9 @@ const Agenda = () => {
     fechaDia.setDate(lunesActual.getDate() + i);
     diasSemana.push(fechaDia);
   }
-
-  // ... dentro de Agenda.jsx
-
   const obtenerTurnosDelDia = (fecha) => {
     return turnos.filter(t => {
-      // 1. Tomamos los primeros 10 caracteres (YYYY-MM-DD) sin importar si hay T o espacio
       const fechaTurnoStr = t.fecha_turno.substring(0, 10);
-
-      // 2. Convertimos la fecha de la columna a YYYY-MM-DD local (para evitar líos de zona horaria)
       const año = fecha.getFullYear();
       const mes = String(fecha.getMonth() + 1).padStart(2, '0');
       const dia = String(fecha.getDate()).padStart(2, '0');
@@ -183,7 +177,7 @@ const Agenda = () => {
 
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-black text-gray-700 text-xs bg-gray-100 px-2 py-0.5 rounded-lg">
-                        {turno.fecha_turno.split('T')[1].substring(0, 5)} hs
+                      {turno.fecha_turno.substring(11, 16)} hs
                       </span>
                       <button
                         onClick={() => {
